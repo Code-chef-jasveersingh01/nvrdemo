@@ -17,7 +17,7 @@
             @endif
             <div class="card-body">
                 @if(isset($search_label))
-                    <div class="card-body border border-dashed border-end-0 border-start-0">
+                    <div class="card-body ">
                         {{$search_label}}
                     </div>
                 @endif

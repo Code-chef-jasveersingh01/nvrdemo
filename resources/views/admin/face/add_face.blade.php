@@ -20,73 +20,77 @@
 @endcomponent
  <!-- Session Status -->
  <x-auth-session-status class="mb-4" :status="session('status')" />
-<div class="col-sm-12">
-    <form action="{{ route('admin.addFace') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="row">
-            <div class="col-sm-7 ">
-                <div class="mb-4 ">
-                    <label for="name" class="form-label fs-4 ">{{__('main.name')}}</label>
-                    <input type="text"  class="form-control @error('name') is-invalid @enderror" value="" id="name" name="name" placeholder="Enter name">
-                    @error('name')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
+<div class="col-sm-12 ">
+
+        <form class="bg-white p-2" action="{{ route('admin.addFace') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="row gx-3 mb-3">
+                <div class="col-sm-6 ">
+                    <div class="mb-4 ">
+                        <label for="name" class="form-label fs-4 ">{{__('main.name')}}</label>
+                        <input type="text"  class="form-control @error('name') is-invalid @enderror" value="" id="name" name="name" placeholder="Enter name">
+                        @error('name')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                    <div class="mb-4 ">
+                        <label for="email" class="form-label fs-4 ">{{__('main.email')}}</label>
+                        <input type="email"  class="form-control @error('email') is-invalid @enderror" value="" id="email" name="email" placeholder="Enter email">
+                        @error('email')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4 ">
+                        <label for="phone" class="form-label fs-4 ">{{__('main.phone')}}</label>
+                        <input type="number"  class="form-control @error('phone') is-invalid @enderror" value="" id="phone" name="phone" placeholder="Enter phone">
+                        @error('phone')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                    <div class="mb-4">
+                        <label for="image" class="form-label fs-4">{{__('main.upload_image')}}</label>
+                        <input type="file" class="form-control" id="image" name="image">
+                    </div>
+                    <div class=" d-flex justify-content-around">
+                        <label class="form-check-label ">
+                            <input type="radio" class="" name="uploadOption" value="fromComputer" checked>
+                            {{__('main.upload_from_pc')}}
+                        </label>
+                        <br>
+                        <label class="form-check-label">
+                            <input type="radio" name="uploadOption" value="fromWebcam">
+                            {{__('main.take_picture')}}
+                        </label>
+                    </div>
                 </div>
-                <div class="mb-4 ">
-                    <label for="email" class="form-label fs-4 ">{{__('main.email')}}</label>
-                    <input type="email"  class="form-control @error('email') is-invalid @enderror" value="" id="email" name="email" placeholder="Enter email">
-                    @error('email')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
+                <div class="col-sm-6 ">
+
+                    <!-- Display image preview -->
+                    <div class="image-preview-container text-center ">
+                        <h4>Image Preview</h4>
+                        <img id="imagePreview" class="d-none" width="150px" height="150px"  src="">
+                    </div>
+                    <div class="d-flex justify-content-around align-items-end">
+                        <video id="webcamStream" class="w-50" autoplay></video>
+                        <button class="d-none btn btn-primary mb-8" id="captureButton">Capture</button>
+                    </div>
+                    <input type="hidden" id="webCapturedImage" name="webCapturedImage" src="" value="">
                 </div>
 
-                <div class="mb-4 ">
-                    <label for="phone" class="form-label fs-4 ">{{__('main.phone')}}</label>
-                    <input type="number"  class="form-control @error('phone') is-invalid @enderror" value="" id="phone" name="phone" placeholder="Enter phone">
-                    @error('phone')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
+                <div class="col-sm-12">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button class="btn btn-success w-10 fs-4" type="submit">{{__('main.add')}}</button>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-5">
-                <div class="mb-4">
-                    <label for="image" class="form-label fs-4">{{__('main.upload_image')}}</label>
-                    <input type="file" class="form-control" id="image" name="image">
-                </div>
-                <div class="mb-4 d-flex justify-content-around">
-                    <label class="form-check-label ">
-                        <input type="radio" class="" name="uploadOption" value="fromComputer" checked>
-                        {{__('main.upload_from_pc')}}
-                    </label>
-                    <br>
-                    <label class="form-check-label">
-                        <input type="radio" name="uploadOption" value="fromWebcam">
-                        {{__('main.take_picture')}}
-                    </label>
-                </div>
-                <div class="d-flex justify-content-around align-items-end">
-                    <video id="webcamStream" class="w-50" autoplay></video>
-                    <button class="d-none btn btn-primary mb-8" id="captureButton">Capture</button>
-                </div>
-                <input type="hidden" id="webCapturedImage" name="webCapturedImage" src="" value="">
-
-
-                <!-- Display image preview -->
-                <img id="imagePreview" class="d-none" width="50%" height="50%"  src="">
-            </div>
-        </div>
-
-
-        <div class="mt-4 float-end">
-            <button class="btn btn-success w-10 fs-4" type="submit">{{__('main.add')}}</button>
-        </div>
-    </form>
+        </form>
 </div>
 @endsection
 @section('script')
@@ -158,7 +162,6 @@
         context.drawImage(webcamStream[0], 0, 0, canvas.width, canvas.height);
         var capturedImage = canvas.toDataURL('image/jpeg');
         webcamStream.addClass('d-none');
-
         webCapturedImage.prop('value', capturedImage);
         imagePreview.removeClass('d-none');
         imagePreview.prop('src', capturedImage);

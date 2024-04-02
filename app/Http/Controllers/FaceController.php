@@ -22,20 +22,29 @@ use Carbon\Carbon;
 
 class FaceController extends Controller
 {
+
+    /**
+     * Display the view for listing all faces.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-
-            try {
-
-                return view('admin.face.all_face_list');
-            } catch (\Exception $e) {
-                Log::error('####### FaceController -> index() #######  ' . $e->getMessage());
-                Session::flash('alert-error', __('message.something_went_wrong'));
-                return redirect()->back()->withInput();
-            }
-
+        try {
+            return view('admin.face.all_face_list');
+        } catch (\Exception $e) {
+            Log::error('####### FaceController -> index() #######  ' . $e->getMessage());
+            Session::flash('alert-error', __('message.something_went_wrong'));
+            return redirect()->back()->withInput();
+        }
     }
 
+    /**
+     * Retrieve face data for DataTables listing.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function dataTableFaceListTable(Request $request)
     {
 
@@ -71,6 +80,14 @@ class FaceController extends Controller
         return view('admin.face.add_face');
     }
 
+
+     /**
+     * Add a new face to the system and make api call to save it to the nvr.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+
     public function addFace(Request $request)
     {
 
@@ -83,7 +100,6 @@ class FaceController extends Controller
 
 
         if ($validData->fails()) {
-           // Session::flash('alert-error', __('message.something_went_wrong'));
             return redirect()->back()->withErrors($validData)->withInput();
         }
 
@@ -110,13 +126,7 @@ class FaceController extends Controller
                     $tempFilePath = tempnam(sys_get_temp_dir(), 'image');
                     file_put_contents($tempFilePath, $file);
                     $file = new \Illuminate\Http\UploadedFile($tempFilePath, 'temp_image.jpg');
-
-
-
                 }
-
-
-               // $file = $request->file('image');
 
                 $base64Image = $this->convertToBase64($file);
 
@@ -131,6 +141,8 @@ class FaceController extends Controller
                 $extension = $file->getClientOriginalExtension();
                 $filename = $this->generateUuid($extension);
 
+
+                //Nvr api call to save image
                 $uploadImage = $this->addFaceApi($imageData);
                 $apiResponse = json_decode($uploadImage->body(),true);
                 $md5ImageCode = $apiResponse['data']['MD5'][0];
@@ -140,6 +152,7 @@ class FaceController extends Controller
                     return redirect()->back()->withInput();
                 }
 
+                //If image do not have a face then api call will not return md5.
                 if(empty($md5ImageCode)){
                     Session::flash('alert-error', __('message.face_not_identified'));
                     return redirect()->back()->withInput();
@@ -155,16 +168,14 @@ class FaceController extends Controller
                 if($request->hasFile('image')){
                     $file->move($path, $filename);
                 }else{
-                    //$file = $this->saveImage($request->get('webCapturedImage'),$path);
-
                     Image::make($request->get('webCapturedImage'))->save($path . '/' . $filename);
                 }
 
                 $face->image = $filename;
                 $face->md5 = $md5ImageCode;
             }
-
             $face->save();
+
             Session::flash('alert-success', __('message.records_created_successfully'));
             return redirect()->back();
         } catch (\Exception $e) {
@@ -174,7 +185,14 @@ class FaceController extends Controller
         }
     }
 
-    public function convertToBase64($input) {
+    /**
+     * Converts input data to Base64 encoding.
+     *
+     * @param string $input The input data to be converted to Base64.
+     * @return string The Base64 encoded data.
+     */
+    public function convertToBase64($input)
+    {
         // Check if the input is base64
         if (base64_encode(base64_decode($input, true)) === $input) {
             return $input;
@@ -187,8 +205,15 @@ class FaceController extends Controller
         }
     }
 
-    public function generateUuid($extension = null) {
+    /**
+     * Generate unique name using current and time.
+     *
+     * @param string $extension also rename the image file if extension is passed.
+     * @return string $filename.
+     */
 
+    public function generateUuid($extension = null)
+    {
         $timestamp = Carbon::now();
         $date = $timestamp->format('Ymd');
         $time = $timestamp->format('His');
@@ -203,9 +228,17 @@ class FaceController extends Controller
         return $filename;
     }
 
+    /*
+     * Add face to the the nvr database
+     *
+     * @param array  Contains the required image details
+     *
+     * @return api response
+     *
+     */
+
     public function addFaceApi($imageData)
     {
-
         try {
             $NvrController = new NvrController;
             $NvrController->nvrWebLogout();
@@ -252,32 +285,4 @@ class FaceController extends Controller
             return redirect()->back()->withInput();
         }
     }
-
-    public function base64ToImageFile($imageData){
-        list($type, $imageData) = explode(';', $imageData);
-        list(, $imageData)      = explode(',', $imageData);
-        list(, $extension)     = explode('/', $type);
-
-        // Decode the base64 data
-        $imageData = base64_decode($imageData);
-
-        $filename =  $this->generateUuid($extension);
-
-        // Define the path where you want to save the image
-        $filePath = storage_path('/' . $filename);
-
-        // Save the image to the specified path
-        file_put_contents($filePath, $imageData);
-        return $imageData;
-    }
-
-
-    public function saveImage($image,$path,$filename)
-    {
-        $image_extension = explode('/', mime_content_type($image))[1];
-        $new_name = $this->generateUuid($image_extension);
-        $thumbnail = Image::make($image)->save($path . '/' . $new_name);
-        return $thumbnail;
-    }
-
 }

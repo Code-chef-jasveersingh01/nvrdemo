@@ -89,7 +89,8 @@
             'columnDefs': [
                             {
                                     "targets": 0,
-                                    "className": "text-center  avatar-lg bg-light rounded p-1",
+                                    "className": "text-center  avatar-md bg-light rounded p-1",
+
                             },
                             {
                                     "targets": 1,

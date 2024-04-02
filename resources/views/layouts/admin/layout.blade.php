@@ -31,6 +31,7 @@
                 <!-- container-fluid -->
             </div>
             <!-- End Page-content -->
+            @include('admin.modal.add_face_modal')
             @include('layouts.admin.footer.footer')
         </div>
         <!-- end main content-->
