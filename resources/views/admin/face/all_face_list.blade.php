@@ -12,6 +12,7 @@
     <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet" type="text/css" />
 
     <link rel="stylesheet" href={{asset("assets/css/dropify.css")}}>
+    <link rel="stylesheet" href={{asset("assets/css/custom/all_face_list.css")}}>
 @endsection
 @section('content')
 @component('components.breadcrumb')
@@ -56,7 +57,7 @@
             'paging'        : true,
             'lengthChange'  : false,
             'searching'     : false,
-            'ordering'      : true,
+            'ordering'      : false,
             'info'          : true,
             'autoWidth'     : false,
             "processing"    : true,
